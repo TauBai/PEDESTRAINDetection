@@ -6,7 +6,7 @@
 #include <cstdlib>
 using namespace std;
 using namespace cv;
-const string DATAPATH = "/media/tau/WIN7/下载/INRIAPerson/";
+const string DATAPATH = "/home/tau/INRIAPerson/";
 
 int main()
 {
@@ -14,16 +14,16 @@ int main()
 
     svm_->setType(cv::ml::SVM::C_SVC);
     svm_->setKernel(cv::ml::SVM::LINEAR);
-    //svm_->setC(0.1);  //one-class svm 不需要
-    //svm_->setNu(0.5);  //C_SVC 不需要
+    svm_->setC(0.1);  //one-class svm 不需要
+    svm_->setNu(0.5);  //C_SVC 不需要
     svm_->setTermCriteria(TermCriteria( TermCriteria::MAX_ITER + TermCriteria::EPS, 1000, FLT_EPSILON ));
-    //svm_->setCoef0(0.0);  //实际上对于one_class和c_SVC, 这个和下面两个参数都用不上
-    //svm_->setDegree(3);
-    //svm_->setGamma(0);
+    svm_->setCoef0(0.0);  //实际上对于one_class和c_SVC, 这个和下面两个参数都用不上
+    svm_->setDegree(3);
+    svm_->setGamma(0);
 
 
     HOGDescriptor hog(Size(64,128),Size(16,16),Size(8,8),Size(8,8),9,1,
-                      -1,HOGDescriptor::L2Hys,0.2,false,HOGDescriptor::DEFAULT_NLEVELS);
+                      -1,HOGDescriptor::L2Hys,0.2,true,HOGDescriptor::DEFAULT_NLEVELS);
     cv::Mat sample;
     vector<int> labels;
     ifstream rd(string(DATAPATH + "train_64x128_H96/pos.lst"), ifstream::in);
@@ -34,7 +34,7 @@ int main()
 
     string line;
     while(getline(rd,line)){
-        string posPATH = "/media/tau/WIN7/下载/INRIAPerson/96X160H96/" + line;
+        string posPATH = "/home/tau/INRIAPerson/96X160H96/" + line;
         //cout << posPATH << endl;   //for debugging
         Mat pos = imread(posPATH);
 
@@ -69,7 +69,7 @@ int main()
     rd.open(DATAPATH + "neg.lst");
     int count = 0;
     while(getline(rd,line)){
-        string negPATH = line;
+        string negPATH = DATAPATH+line;
         //cout << negPATH << endl;   //for debugging
         Mat neg = imread(negPATH);
 
@@ -91,7 +91,9 @@ int main()
         cv::Ptr<cv::ml::TrainData> trainData =
               cv::ml::TrainData::create(sample, cv::ml::SampleTypes::ROW_SAMPLE,
                                         labels);
-        svm_->trainAuto(trainData);
+
+        cv::ml::ParamGrid c_grid(0.0001,1000,5);
+        svm_->trainAuto(trainData,10,c_grid);
         std::cout << "training process finished " << std::endl;
 
         svm_->save(DATAPATH + "hog_svm.xml");
@@ -137,10 +139,10 @@ int main()
             //cv::waitKey(0);
             if(!neg.empty()){
                 std::vector< Rect > foundLocations;
-                hog.detectMultiScale(neg,foundLocations,0.07,Size(4,4),Size(0,0),0.95,2,false);
+                hog.detectMultiScale(neg,foundLocations,0.07,Size(2,2),Size(0,0),1.05,2,false);
 
                 for(auto rect : foundLocations){
-                    string filename = "enlarged1"+to_string(count);
+                    string filename = "b"+to_string(count);
                     string negImgPath =DATAPATH +"neg/" + filename +".png";
                     Mat foundNEG(neg,rect);
                     resize(foundNEG,foundNEG,Size(64,128));
@@ -149,13 +151,15 @@ int main()
                     compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
                     compression_params.push_back(0);
                     imwrite(negImgPath,foundNEG,compression_params);
-                    outList << negImgPath <<'\n' ;
+                    outList << string("neg/" + filename +".png")<<'\n' ;
                     ++count;
                 }
             }
         }
         cout << "all the neg img have been saved to the " << DATAPATH << "/neg/ " << endl
                    << "you can refer to neg.lst in the " <<DATAPATH << endl;
+        printf( "train error: %f\n", svm_->calcError(trainData, false, noArray()) );
+        printf( "test error: %f\n\n", svm_->calcError(trainData, true, noArray()) );
         negList.close();
         outList.close();
     }else
@@ -166,4 +170,3 @@ int main()
 
 
 }
-
