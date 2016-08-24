@@ -96,7 +96,7 @@ float accuracy(Ptr<ml::SVM> svm_ ,Mat& pos, Mat& neg, float& precision, float& r
                 ++tp;
         }
         fn = n1 - tp;
-        cout << posLabel << endl;
+        //cout << posLabel << endl;  
         recall = float(tp)/ n1* 100;
     }
     if(!neg.empty()){
