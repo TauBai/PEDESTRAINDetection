@@ -71,39 +71,50 @@ int main()
     float precision,recall;
     cv::Ptr<ml::SVM> svm_ = ml::SVM::load<cv::ml::SVM>(path);
     float accurate = accuracy(svm_,pos,neg,precision,recall);
-    cout << " model accuracy in test: " << accurate << endl;
-    cout << " precision : " << precision << endl;
-    cout << " recall    : " << recall << endl;
+    if(accurate >= 0)
+        cout << " model accuracy in test: " << accurate << endl;
+    if(precision >= 0)
+        cout << " precision : " << precision << endl;
+    if(recall >= 0)
+        cout << " recall    : " << recall << endl;
     
 }
 float accuracy(Ptr<ml::SVM> svm_ ,Mat& pos, Mat& neg, float& precision, float& recall){
 
-    float accurate= 0;
-    precision = 0;
-    recall = 0;
+    float accurate= -1;
+    precision = -1;
+    recall = -1;
+    int tp = 0,tn = 0,n1 = 0,n2 = 0,fp = 0, fn = 0;
 
     Mat posLabel , negLabel;
-    svm_->predict(pos,posLabel,0);
-    svm_->predict(neg,negLabel,0);
-
-    int tp = 0;
-    int tn = 0;
-    int n1 = posLabel.rows;
-    for(int y = 0; y < n1; ++y){
-        float* data = posLabel.ptr<float>(y);
-        if( abs(data[0]) > 0.001)
-            ++tp;
+    if(!pos.empty()){
+        svm_->predict(pos,posLabel,0);
+        n1 = posLabel.rows;
+        for(int y = 0; y < n1; ++y){
+            float* data = posLabel.ptr<float>(y);
+            if( data[0] > 0)
+                ++tp;
+        }
+        fn = n1 - tp;
+        cout << posLabel << endl;
+        recall = float(tp)/ n1* 100;
     }
-    int n2 = negLabel.rows;
-    for(int y = 0; y < n2; ++y){
-        float* data = negLabel.ptr<float>(y);
-        if( abs(data[0]) <= 0.001)
-            ++tn;
+    if(!neg.empty()){
+        svm_->predict(neg,negLabel,0);
+        n2 = negLabel.rows;
+        for(int y = 0; y < n2; ++y){
+            float* data = negLabel.ptr<float>(y);
+            if( data[0] < 0)
+                ++tn;
+        }
+        fp = n2 - tn;
     }
 
-    float fp = n2 - tn;
-    precision = float(tp)/(tp + fp)* 100;
-    recall = float(tp)/ n1* 100;
+
+    if(!pos.empty() && !neg.empty()){
+        precision = float(tp)/(tp + fp)* 100;
+        accurate = float(tp + tn)/(n1 + n2);
+    }
     return accurate;
     
 }
