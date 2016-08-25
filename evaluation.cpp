@@ -8,9 +8,9 @@ using namespace cv;
 float accuracy(Ptr<ml::SVM> svm_ ,Mat& pos, Mat& neg, float& precision, float& recall);
 int main()
 {
-    string path = "/media/tau/WIN7/下载/INRIAPerson/hog_svm.xml";   // path for trained svm xml
-    string pathTEST = "/media/tau/WIN7/下载/INRIAPerson/test_64x128_H96/";
-    string DATAPATH = "/media/tau/WIN7/下载/INRIAPerson/70X134H96/";
+    string path = "/home/tau/INRIAPerson/hog_svm.xml";   // path for trained svm xml
+    string pathTEST = "/home/tau/INRIAPerson/test_64x128_H96/";
+    string DATAPATH = "/home/tau/INRIAPerson/70X134H96/";
 
 
     HOGDescriptor hog(Size(64,128),Size(16,16),Size(8,8),Size(8,8),9,1,
@@ -23,7 +23,7 @@ int main()
     //Mat test=imread("/media/tau/WIN7/下载/INRIAPerson/test_64x128_H96/pos/crop001501a.png");
     //imshow("t",t);
     //cout << t.size() << endl;
-    cv::waitKey(0);
+    //cv::waitKey(0);
     ifstream rdPos(pathTEST+"pos.lst",ifstream::in);
     if(!rdPos.is_open()){
         cout << "Please check the pos.lst" << endl;
@@ -69,7 +69,9 @@ int main()
 
 
     float precision,recall;
-    cv::Ptr<ml::SVM> svm_ = ml::SVM::load<cv::ml::SVM>(path);
+
+    cv::Ptr<ml::SVM> svm_ =
+            cv::ml::SVM::load(path);
     float accurate = accuracy(svm_,pos,neg,precision,recall);
     if(accurate >= 0)
         cout << " model accuracy in test: " << accurate << endl;
@@ -77,7 +79,7 @@ int main()
         cout << " precision : " << precision << endl;
     if(recall >= 0)
         cout << " recall    : " << recall << endl;
-    
+
 }
 float accuracy(Ptr<ml::SVM> svm_ ,Mat& pos, Mat& neg, float& precision, float& recall){
 
@@ -96,7 +98,7 @@ float accuracy(Ptr<ml::SVM> svm_ ,Mat& pos, Mat& neg, float& precision, float& r
                 ++tp;
         }
         fn = n1 - tp;
-        //cout << posLabel << endl;  
+        //cout << posLabel << endl;
         recall = float(tp)/ n1* 100;
     }
     if(!neg.empty()){
@@ -116,5 +118,5 @@ float accuracy(Ptr<ml::SVM> svm_ ,Mat& pos, Mat& neg, float& precision, float& r
         accurate = float(tp + tn)/(n1 + n2);
     }
     return accurate;
-    
+
 }
