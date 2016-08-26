@@ -67,6 +67,6 @@ int main()
             }else
                 cout << "please check the test files" << endl;
         }
-        testList.close();
+    testList.close();
 }
 
