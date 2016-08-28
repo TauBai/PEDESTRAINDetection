@@ -42,8 +42,8 @@ int main()
             if(!img.empty() &&
                     img.rows > 64 &&
                     img.cols > 128){
-                std::uniform_int_distribution<int> row(0,img.rows-64); // guaranteed unbiased // 概率相同
-                std::uniform_int_distribution<int> col(0,img.cols-128); // guaranteed unbiased // 概率相同
+                std::uniform_int_distribution<int> row(0,img.rows-128); // guaranteed unbiased // 概率相同
+                std::uniform_int_distribution<int> col(0,img.cols-64); // guaranteed unbiased // 概率相同
 
                 int t = numOfImg;
                 while(t--){
@@ -51,11 +51,8 @@ int main()
                     int y = row(rng);
                     string filename = to_string(count) + ".png";
                     string path = DATAPATH + "neg/" + filename;
-                    Mat grub(img,cv::Rect(x,y,128,64));
-                    vector<int> compression_params;
-                    compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
-                    compression_params.push_back(0);
-                    imwrite(path,grub,compression_params);
+                    Mat grub(img,cv::Rect(x,y,64,128));
+                    imwrite(path,grub);
                     outList << path << '\n' ;
                     ++count;
                 }
