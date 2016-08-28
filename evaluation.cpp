@@ -48,7 +48,7 @@ int main()
 
 
 
-    ifstream rdNeg(pathTEST+"neg.lst",ifstream::in);    //Note that size of negtive img is 64x128
+    ifstream rdNeg(pathTEST+"neg.lst",ifstream::in);    //Note that size of negtive img should be 64x128
     if(!rdNeg.is_open()){
         cout << "Please check the pos.lst" << endl;
         return -1;
