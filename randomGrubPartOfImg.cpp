@@ -52,7 +52,10 @@ int main()
                     string filename = to_string(count) + ".png";
                     string path = DATAPATH + "neg/" + filename;
                     Mat grub(img,cv::Rect(x,y,128,64));
-                    imwrite(path,grub);
+                    vector<int> compression_params;
+                    compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+                    compression_params.push_back(0);
+                    imwrite(path,grub,compression_params);
                     outList << path << '\n' ;
                     ++count;
                 }
