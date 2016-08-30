@@ -63,7 +63,7 @@ int main()
             sample.push_back(rowSample);
             labels.push_back(1);
         }else
-            cout << "please check the pos files" << endl;
+            cout << "please check the " << posPATH << endl;
     }
     rd.close();
     rd.open(DATAPATH + "neg.lst");
@@ -82,7 +82,7 @@ int main()
             labels.push_back(-1);
             ++count;
         }else
-            cout << "please check the neg files" << endl;
+            cout << "please check the " << negPATH << endl;
     }
     rd.close();
 
