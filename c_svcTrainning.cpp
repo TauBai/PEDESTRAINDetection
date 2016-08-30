@@ -39,7 +39,7 @@ int main()
         Mat pos = imread(posPATH);
 
         //imshow("pos",pos);
-        if(!pos.empty()){
+        if(!pos.empty() &&  pos.size()==Size(96,160)){
             Mat posCLIP(pos,cv::Rect(16,16,64,128));
             //cv::imshow("64x128",posCLIP);
             //std::cout << posCLIP.size() <<std::endl;
@@ -74,7 +74,7 @@ int main()
         Mat neg = imread(negPATH);
 
         //imshow("neg",neg);
-        if(!neg.empty()){
+        if(!neg.empty()  && neg.size()==Size(64,128)){
             vector<float> descriptor;
             hog.compute(neg,descriptor,Size(8,8),Size(0,0));
             Mat rowSample(1,(int)descriptor.size(), CV_32FC1,&descriptor[0]);
